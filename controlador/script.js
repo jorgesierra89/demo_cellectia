@@ -1,6 +1,6 @@
 // --- CONFIGURACIÓN Y ESTADO INICIAL ---
 let estadoSimulado = "basico"; 
-const FOLDER_ID = 59873; // Tu ID de carpeta en Cron-job
+const FOLDER_ID = 60096;
 
 // --- NAVEGACIÓN ---
 function abrirPestaña(pestañaId) {
