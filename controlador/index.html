@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellectia Pro Control</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="header-fijo">
+        <header class="app-bar" id="tarjeta-estado">
+            <div></div> 
+            
+            <div class="estado-info">
+                <span class="titulo-estado-mini">ESTADO DE CELLECTIA</span>
+                <div id="texto-estado" class="texto-gris">Comprobando estado...</div>
+            </div>
+            
+            <div class="acciones-header">
+                <button id="btn-dark-mode" class="btn-icon" onclick="toggleDarkMode()" title="Cambiar Tema">☀️</button>
+                <button id="btn-refresh" class="btn-icon" onclick="comprobarEstado()" title="Actualizar estado real">🔄</button>
+            </div>
+        </header>
+
+        <nav class="tab-bar">
+            <button class="tab-btn active" onclick="abrirPestaña('manual')">🎮 Manual</button>
+            <button class="tab-btn" onclick="abrirPestaña('auto')">📅 Programar</button>
+            <button class="tab-btn" onclick="abrirPestaña('seguridad')">
+                🛡️ Seguridad <span id="led-seguridad" class="led-rojo"></span>
+            </button>
+        </nav>
+    </div>
+    <main class="contenedor">
+        
+        <section id="manual" class="tab-content active">
+            <div class="card card-info">
+                <span class="icono-card">💰</span>
+                <p><strong>¡Importante!</strong> Al terminar de usar la IA a máxima velocidad, recuerda Activar el Modo Básico para no consumir el saldo de la cuenta.</p>
+            </div>
+
+            <div class="card card-warning">
+                <h3>⚠️ Aviso de Transición</h3>
+                <p>⏳ El proceso de cambio de modo puede tardar entre 10 y 20 minutos.</p>
+                <p>🚫 Mientras el panel esté en color <strong>NARANJA</strong>, la IA se está reiniciando y no responderá a nadie.</p>
+            </div>
+
+            <div class="card card-legend">
+                <p>🔵 <strong>Azul:</strong> Modo Básico. Operativo y totalmente gratis.</p>
+                <p>🟢 <strong>Verde:</strong> Modo Avanzado. Máxima velocidad, consume saldo.</p>
+                <p>🟠 <strong>Naranja:</strong> En proceso de cambio. Esperar sin tocar nada.</p>
+            </div>
+
+            <div class="botones-principales">
+                <button id="btn-avanzado" class="boton boton-verde" onclick="subirMaquina()" disabled>
+                    🚀 ACTIVAR MODO AVANZADO<br><small>(Máxima Velocidad)</small>
+                </button>
+                <button id="btn-basico" class="boton boton-azul" onclick="bajarMaquina()" disabled>
+                    🌱 ACTIVAR MODO BÁSICO<br><small>(Volver a Gratis)</small>
+                </button>
+            </div>
+        </section>
+
+        <section id="auto" class="tab-content">
+            <div class="grid-desktop">
+                <div class="card card-auto">
+                    <h3>🕒 Rutina Semanal</h3>
+                    <p class="subtitulo">Cambiar modos automáticamente.</p>
+                    
+                    <div class="selector-dias-moderno">
+                        <label><input type="checkbox" class="dia-check" value="1" checked> <span class="dia-pill">Lunes</span></label>
+                        <label><input type="checkbox" class="dia-check" value="2" checked> <span class="dia-pill">Martes</span></label>
+                        <label><input type="checkbox" class="dia-check" value="3" checked> <span class="dia-pill">Miércoles</span></label>
+                        <label><input type="checkbox" class="dia-check" value="4" checked> <span class="dia-pill">Jueves</span></label>
+                        <label><input type="checkbox" class="dia-check" value="5" checked> <span class="dia-pill">Viernes</span></label>
+                        <label><input type="checkbox" class="dia-check" value="6"> <span class="dia-pill">Sábado</span></label>
+                        <label><input type="checkbox" class="dia-check" value="7"> <span class="dia-pill">Domingo</span></label>
+                    </div>
+
+                    <div class="input-group" style="margin-top: 15px;">
+                        <label>🚀 Avanzado:</label>
+                        <input type="time" id="hora-inicio" value="09:00">
+                    </div>
+                    <div class="input-group">
+                        <label>🐢 Básico:</label>
+                        <input type="time" id="hora-fin" value="18:00">
+                    </div>
+
+                    <button class="boton boton-negro" onclick="guardarRutina()">💾 Guardar Rutina</button>
+                </div>
+
+                <div class="card card-auto" style="border-left: 5px solid #9c27b0;">
+                    <h3>📅 Cita Única (Día concreto)</h3>
+                    <p class="subtitulo">Programar un cambio puntual.</p>
+                    
+                    <div class="input-group">
+                        <label>Fecha:</label>
+                        <input type="date" id="fecha-unica" style="width: 50%;">
+                    </div>
+                    <div class="input-group">
+                        <label>🚀 Avanzado:</label>
+                        <input type="time" id="hora-unica-on" value="10:00">
+                    </div>
+                    <div class="input-group">
+                        <label>🐢 Básico:</label>
+                        <input type="time" id="hora-unica-off" value="12:00">
+                    </div>
+                    <button class="boton" style="background-color: #9c27b0;" onclick="guardarEventoUnico()">🗓️ Programar Fecha</button>
+                </div>
+                
+                <div id="lista-programaciones" class="card card-legend ancho-completo">
+                    <h3>Programaciones Activas:</h3>
+                    <div id="cron-list-container">Cargando lista...</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="seguridad" class="tab-content">
+            <div class="card card-warning" style="text-align: center; border-color: #f44336;">
+                <h3 style="color: #f44336;">🛡️ Check de Seguridad</h3>
+                <p>Asegura que Cellectia vuelva al <strong>Modo Básico</strong> (Gratis) todos los días a la misma hora en caso de que olvides hacerlo manualmente.</p>
+                <div class="input-group" style="justify-content: center; gap: 15px; margin-top: 20px;">
+                    <label>Hora de "Cierre":</label>
+                    <input type="time" id="hora-seguridad" value="23:59">
+                </div>
+                
+                <button id="btn-activar-seg" class="boton boton-rojo" onclick="guardarSeguridad()">🔒 Activar Salvavidas</button>
+                <button id="btn-desactivar-seg" class="boton boton-negro" style="margin-top:10px;" onclick="borrarSeguridad()">❌ Desactivar Salvavidas</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="snackbar"></div>
+    <script src="script.js"></script>
+</body>
+</html>

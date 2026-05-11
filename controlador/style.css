@@ -1,0 +1,257 @@
+/* =========================================
+   VARIABLES Y TEMAS (MODO OSCURO)
+   ========================================= */
+:root {
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --bg-tabs: #1e1e1e;
+    --text-main: #e0e0e0;
+    --text-sub: #aaaaaa;
+    --border: #333333;
+    --shadow: rgba(0,0,0,0.5);
+}
+
+[data-theme="light"] {
+    --bg-body: #f0f2f5;
+    --bg-card: #ffffff;
+    --bg-tabs: #ffffff;
+    --text-main: #333333;
+    --text-sub: #666666;
+    --border: #dddddd;
+    --shadow: rgba(0,0,0,0.05);
+}
+
+/* =========================================
+   ESTILOS BASE Y CABECERA FIJA
+   ========================================= */
+body { 
+    font-family: sans-serif; 
+    background: var(--bg-body); 
+    color: var(--text-main);
+    margin: 0; 
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Contenedor pegajoso */
+.header-fijo {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 6px var(--shadow);
+}
+
+.app-bar { 
+    background: var(--bg-card); 
+    color: var(--text-main); 
+    padding: 15px 20px; 
+    /* Cambiamos a Grid: 3 columnas (espacio izquierdo, centro auto, derecha) */
+    display: grid; 
+    grid-template-columns: 1fr auto 1fr; 
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    transition: border 0.3s, background 0.3s;
+}
+
+.estado-info { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; /* Centramos el texto internamente */
+    text-align: center;
+}
+
+.acciones-header {
+    display: flex;
+    justify-content: flex-end; /* Empujamos los botones a la derecha */
+    gap: 10px;
+}
+
+.titulo-estado-mini {
+    font-size: 14px; /* Un puntito más grande (antes 13px) */
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 1.5px; /* Un pelín más separado para que sea más legible */
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#texto-estado {
+    font-size: 28px; /* ¡Bastante más grande! (antes 22px) */
+    font-weight: bold;
+    margin: 0;
+    transition: color 0.3s;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    filter: brightness(1);
+    transition: transform 0.2s;
+}
+.btn-icon:hover { transform: scale(1.1); }
+
+.contenedor { 
+    max-width: 800px; 
+    margin: auto; 
+    padding: 20px 15px; 
+}
+
+/* =========================================
+   SISTEMA DE PESTAÑAS
+   ========================================= */
+.tab-bar { 
+    display: flex; 
+    background: var(--bg-tabs); 
+    border-bottom: 1px solid var(--border); 
+}
+
+.tab-btn { 
+    flex: 1; 
+    padding: 15px; 
+    border: none; 
+    background: none; 
+    font-weight: bold; 
+    cursor: pointer; 
+    color: var(--text-sub); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s, border 0.2s;
+}
+
+.tab-btn.active { 
+    color: #2196f3; 
+    border-bottom: 3px solid #2196f3; 
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* =========================================
+   TARJETAS Y FORMULARIOS
+   ========================================= */
+.card { 
+    background: var(--bg-card); 
+    border-radius: 12px; 
+    padding: 20px; 
+    margin-bottom: 15px; 
+    box-shadow: 0 2px 5px var(--shadow); 
+    transition: background 0.3s;
+}
+
+.input-group { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 15px; 
+}
+
+input[type="time"], input[type="date"] { 
+    padding: 8px; 
+    border: 1px solid var(--border); 
+    border-radius: 5px; 
+    font-size: 16px;
+    background: var(--bg-card);
+    color: var(--text-main);
+}
+
+/* Botones */
+.boton { 
+    width: 100%; 
+    padding: 15px; 
+    border-radius: 10px; 
+    border: none; 
+    font-weight: bold; 
+    color: white; 
+    cursor: pointer; 
+    margin-top: 10px; 
+    transition: 0.2s;
+}
+.boton:hover { opacity: 0.9; }
+.boton-verde { background: #4caf50; }
+.boton-azul { background: #2196f3; }
+.boton-negro { background: #333; }
+.boton-rojo { background: #f44336; }
+.boton:disabled { background: #ccc; cursor: not-allowed; }
+
+/* Textos y Alertas */
+.subtitulo { font-size: 13px; color: var(--text-sub); margin-top: -5px; margin-bottom: 15px; }
+.texto-gris { color: var(--text-sub); }
+.texto-azul { color: #2196f3; }
+.texto-verde { color: #4caf50; }
+.texto-naranja { color: #ff9800; }
+.texto-rojo { color: #f44336; }
+
+.card-info { background-color: rgba(33, 150, 243, 0.1); border: 1px solid #90caf9; display: flex; align-items: center; font-size: 14px; }
+.card-warning { background-color: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; font-size: 14px; }
+.card-legend { background-color: var(--bg-card); border: 1px solid var(--border); font-size: 13px; }
+
+/* =========================================
+   GRID DESKTOP Y PÍLDORAS
+   ========================================= */
+.grid-desktop {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+@media (min-width: 768px) {
+    .grid-desktop {
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+    .ancho-completo {
+        grid-column: span 2;
+    }
+}
+
+.card-auto { display: flex; flex-direction: column; }
+.card-auto .boton { margin-top: auto; }
+
+.selector-dias-moderno { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 8px; 
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.selector-dias-moderno label { cursor: pointer; }
+
+/* Escondemos el checkbox original */
+.selector-dias-moderno input[type="checkbox"] { display: none; }
+
+.dia-pill {
+    display: inline-block;
+    padding: 8px 14px;
+    background: var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--text-sub);
+    transition: 0.3s;
+    text-align: center;
+    min-width: 60px;
+}
+
+.selector-dias-moderno input:checked + .dia-pill {
+    background: #4caf50;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.4);
+}
+
+/* =========================================
+   LEDS Y SNACKBAR
+   ========================================= */
+.led-rojo { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #f44336; box-shadow: 0 0 5px #f44336; margin-left: 8px; }
+.led-verde { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #4caf50; box-shadow: 0 0 8px #4caf50; margin-left: 8px; }
+
+#snackbar { 
+    visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; 
+    text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; 
+}
+#snackbar.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
