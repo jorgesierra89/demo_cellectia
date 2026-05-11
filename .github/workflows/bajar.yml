@@ -15,6 +15,6 @@ jobs:
           python -c "
           from huggingface_hub import HfApi
           api = HfApi(token='$HF_TOKEN')
-          api.request_space_hardware(repo_id='Proyecto-Cellectia/Proyecto-Cellectia', hardware='cpu-basic')
+          api.request_space_hardware(repo_id='demo-cellectia/demo-cellectia', hardware='cpu-basic')
           print('Orden de bajada enviada con éxito')
           "
