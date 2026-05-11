@@ -1,0 +1,20 @@
+name: 🟢 Subir a T4 Small
+on:
+  workflow_dispatch:
+
+jobs:
+  change-hardware:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar librería Hugging Face
+        run: pip install huggingface_hub
+      - name: Cambiar a T4 Small
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python -c "
+          from huggingface_hub import HfApi
+          api = HfApi(token='$HF_TOKEN')
+          api.request_space_hardware(repo_id='Proyecto-Cellectia/Proyecto-Cellectia', hardware='t4-small')
+          print('Orden de subida enviada con éxito')
+          "
