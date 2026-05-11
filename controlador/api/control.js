@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     try {
         // 1. ESTADO DE LA MÁQUINA (Hugging Face)
         if (action === 'CHECK_STATUS') {
-            const response = await fetch('https://huggingface.co/api/spaces/Proyecto-Cellectia/Proyecto-Cellectia/runtime', {
+            const response = await fetch('https://huggingface.co/api/spaces/demo-cellectia/demo-cellectia/runtime', {
                 headers: { 'Authorization': `Bearer ${HF_TOKEN}` }
             });
             const data = await response.json();
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         // 2. SUBIR/BAJAR MÁQUINA (Hugging Face)
         if (action === 'SCALE_MACHINE') {
             const { tier } = payload; 
-            const response = await fetch('https://huggingface.co/api/spaces/Proyecto-Cellectia/Proyecto-Cellectia/hardware', {
+            const response = await fetch('https://huggingface.co/api/spaces/demo-cellectia/demo-cellectia/hardware', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${HF_TOKEN}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ flavor: tier })
