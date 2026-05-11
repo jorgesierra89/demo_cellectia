@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const GH_TOKEN = process.env.GH_TOKEN;
 
     // Constantes fijas de tu proyecto
-    const FOLDER_ID = 59873;
+    const FOLDER_ID = 7587997;
     const GITHUB_REPO = "jorgesierra89/proyecto.cellectia";
     const URL_SUBIR = `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/subir.yml/dispatches`;
     const URL_BAJAR = `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/bajar.yml/dispatches`;
