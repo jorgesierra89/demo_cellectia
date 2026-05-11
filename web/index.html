@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellectia 4.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/web/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="dark-mode"> 
+    
+    <div class="top-bar">
+        <div class="brand">
+            <h2><i class="fa-solid fa-dna"></i> CELLECTIA 4.0</h2>
+        </div>
+        
+        <div class="top-buttons">
+            <button id="btn-biblioteca" onclick="toggleBiblioteca()">
+                <i class="fa-solid fa-book-open"></i> Biblioteca
+            </button>
+            
+            <button id="toggleTheme" onclick="toggleTheme()">
+                <i id="theme-icon" class="fa-solid fa-sun"></i> <span id="theme-text">Modo claro</span>
+            </button>
+
+            <button id="btn-reset" onclick="nuevaSesion()" title="Limpiar sesión">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="chat-container">
+            <div id="chat"></div>
+            
+            <div class="input-container">
+                <textarea id="userText" placeholder="Escriba su consulta técnica aquí..." rows="1"></textarea>
+                <button id="boton-enviar" onclick="enviarMensaje()">
+                    <i class="fa-solid fa-paper-plane"></i> Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fa-solid fa-folder-tree"></i> Índice RAG</h3>
+            <button class="close-sidebar" onclick="toggleBiblioteca()">&times;</button>
+        </div>
+        <div id="lista-docs"></div>
+    </div>
+
+    <script src="/web/script.js"></script>
+</body>
+</html>
