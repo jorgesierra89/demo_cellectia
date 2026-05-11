@@ -1,6 +1,6 @@
-let estadoSimulado = "basico";
-let cronJobsSimulados = [];
-let salvavidasActivo = false;
+// --- CONFIGURACIÓN Y ESTADO INICIAL ---
+let estadoSimulado = "basico"; 
+const FOLDER_ID = 59873; // Tu ID de carpeta en Cron-job
 
 // --- NAVEGACIÓN ---
 function abrirPestaña(pestañaId) {
@@ -8,52 +8,162 @@ function abrirPestaña(pestañaId) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(pestañaId).classList.add('active');
     
-    if(event && event.currentTarget) event.currentTarget.classList.add('active');
-    if(pestañaId === 'auto' || pestañaId === 'seguridad') listarCronJobs();
-}
-
-// --- SIMULACIÓN DE ESTADO ---
-function comprobarEstado() {
-    if (estadoSimulado === "basico") {
-        document.getElementById('texto-estado').innerText = "🔵 MODO BÁSICO";
-        actualizarUI("azul");
-        document.getElementById('btn-demo-link').style.display = "none";
-    } else if (estadoSimulado === "avanzado") {
-        document.getElementById('texto-estado').innerText = "🟢 MODO AVANZADO";
-        actualizarUI("verde");
-        // Mostramos el botón para ir a Hugging Face
-        document.getElementById('btn-demo-link').style.display = "block";
+    // Al abrir estas pestañas, refrescamos la lista real de la API
+    if(pestañaId === 'auto' || pestañaId === 'seguridad' || pestañaId === 'manual') {
+        listarCronJobs();
     }
 }
 
-// --- SIMULACIÓN DE SUBIDA/BAJADA (EL "CARTÓN PIEDRA") ---
+// --- LLAMADA A TU API EN VERCEL ---
+async function llamarAPI(action, payload = {}) {
+    const res = await fetch('/api/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, payload })
+    });
+    if (!res.ok) throw new Error(`Error en API: ${action}`);
+    return await res.json();
+}
+
+// --- GESTIÓN DE LA MÁQUINA (TEATRO / SIMULADO) ---
+function comprobarEstado() {
+    const texto = document.getElementById('texto-estado');
+    const btnDemo = document.getElementById('btn-demo-link');
+
+    if (estadoSimulado === "basico") {
+        texto.innerText = "🔵 MODO BÁSICO";
+        actualizarUI("azul");
+        if(btnDemo) btnDemo.style.display = "none";
+    } else {
+        texto.innerText = "🟢 MODO AVANZADO";
+        actualizarUI("verde");
+        if(btnDemo) btnDemo.style.display = "block";
+    }
+}
+
 function subirMaquina() {
-    mostrarSnackbar("🚀 Ejecutando Workflow en GitHub...", "green");
+    mostrarSnackbar("🚀 Ejecutando Workflow en GitHub...", "#1f6feb");
     document.getElementById('texto-estado').innerText = "🟠 REINICIANDO IA...";
     actualizarUI("naranja");
     
-    // Esperamos 4 segundos simulando que GitHub está trabajando
     setTimeout(() => {
         estadoSimulado = "avanzado";
         comprobarEstado();
-        mostrarSnackbar("✅ Máquina en Hardware T4. Lista.", "green");
+        mostrarSnackbar("✅ Hardware T4 Small Activo", "green");
     }, 4000);
 }
 
 function bajarMaquina() {
-    mostrarSnackbar("🌱 Ejecutando Workflow en GitHub...", "blue");
+    mostrarSnackbar("🌱 Bajando a CPU Gratis...", "#2196f3");
     document.getElementById('texto-estado').innerText = "🟠 REINICIANDO IA...";
     actualizarUI("naranja");
-    document.getElementById('btn-demo-link').style.display = "none"; // Ocultamos el enlace
     
-    // Esperamos 4 segundos simulando que GitHub está trabajando
     setTimeout(() => {
         estadoSimulado = "basico";
         comprobarEstado();
-        mostrarSnackbar("✅ Máquina devuelta a CPU Gratis.", "green");
+        mostrarSnackbar("✅ Modo Básico Restaurado", "green");
     }, 4000);
 }
 
+// --- GESTIÓN DE CRON-JOB (REAL) ---
+async function listarCronJobs() {
+    const container = document.getElementById('cron-list-container');
+    const led = document.getElementById('led-seguridad');
+    if(!container) return;
+
+    try {
+        const data = await llamarAPI('CRON_LIST');
+        // Filtramos por tu carpeta específica
+        const misJobs = data.jobs.filter(j => j.folderId === FOLDER_ID);
+        
+        // El LED responde a la realidad de la API
+        const tieneSeguridad = misJobs.some(j => j.title.includes("[SEGURIDAD]"));
+        if(led) led.className = tieneSeguridad ? "led-verde" : "led-rojo";
+
+        // Botones de la pestaña seguridad
+        const btnActivar = document.getElementById('btn-activar-seg');
+        const btnDesactivar = document.getElementById('btn-desactivar-seg');
+        if(btnActivar) btnActivar.disabled = tieneSeguridad;
+        if(btnDesactivar) btnDesactivar.disabled = !tieneSeguridad;
+
+        // Pintamos la lista
+        container.innerHTML = misJobs.map(j => `
+            <div style="background:var(--bg-card); border:1px solid var(--border); padding:12px; margin-bottom:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong>📅 ${j.title}</strong><br>
+                    <span style="font-size:12px; color:var(--text-sub);">Estado: ${j.enabled ? 'Activo' : 'Pausado'}</span>
+                </div>
+                <button onclick="borrarCronReal('${j.jobId}')" style="background:none; border:none; cursor:pointer; font-size:20px; color:#f44336;">🗑️</button>
+            </div>
+        `).join('') || "<p style='text-align:center; color:var(--text-sub);'>No hay tareas activas.</p>";
+
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = "<p style='color:red;'>Error al conectar con Cron-Job.org</p>";
+    }
+}
+
+async function guardarRutina() {
+    const horaInc = document.getElementById('hora-inicio').value;
+    const checks = Array.from(document.querySelectorAll('.dia-check:checked'));
+    const dias = checks.map(c => parseInt(c.value));
+    
+    if(dias.length === 0 || !horaInc) return mostrarSnackbar("Rellena horas y días", "red");
+
+    mostrarSnackbar("📡 Creando tarea real...", "#333");
+    try {
+        await llamarAPI('CRON_CREATE', { 
+            titulo: `[DEMO] Rutina ${horaInc}`, 
+            horaStr: horaInc, 
+            wdays: dias, 
+            mday: -1, month: -1, 
+            tipoAccion: 'SUBIR' 
+        });
+        mostrarSnackbar("✅ Tarea creada en Cron-Job.org", "green");
+        listarCronJobs();
+    } catch (e) { mostrarSnackbar("Error en la API", "red"); }
+}
+
+async function guardarSeguridad() {
+    const hora = document.getElementById('hora-seguridad').value;
+    mostrarSnackbar("🔒 Activando Salvavidas...", "#333");
+    try {
+        await llamarAPI('CRON_CREATE', { 
+            titulo: `[SEGURIDAD] Salvavidas (${hora})`, 
+            horaStr: hora, 
+            wdays: [1,2,3,4,5,6,7], 
+            mday: -1, month: -1, 
+            tipoAccion: 'BAJAR' 
+        });
+        mostrarSnackbar("✅ Salvavidas configurado", "green");
+        listarCronJobs();
+    } catch (e) { mostrarSnackbar("Error al activar", "red"); }
+}
+
+async function borrarCronReal(jobId) {
+    if(!confirm("¿Eliminar esta tarea real de Cron-Job.org?")) return;
+    mostrarSnackbar("🗑️ Eliminando...", "#333");
+    try {
+        await llamarAPI('CRON_DELETE', { jobId });
+        mostrarSnackbar("Eliminado correctamente", "green");
+        listarCronJobs();
+    } catch (e) { mostrarSnackbar("Error al borrar", "red"); }
+}
+
+async function borrarSeguridad() {
+    mostrarSnackbar("🛡️ Desactivando salvavidas...", "#333");
+    try {
+        const data = await llamarAPI('CRON_LIST');
+        const segJob = data.jobs.find(j => j.folderId === FOLDER_ID && j.title.includes("[SEGURIDAD]"));
+        if (segJob) {
+            await llamarAPI('CRON_DELETE', { jobId: segJob.jobId });
+            mostrarSnackbar("Salvavidas desactivado", "#f44336");
+        }
+        listarCronJobs();
+    } catch (e) { mostrarSnackbar("Error al desactivar", "red"); }
+}
+
+// --- UTILIDADES ---
 function actualizarUI(color) {
     const t = document.getElementById('texto-estado');
     const card = document.getElementById('tarjeta-estado');
@@ -64,96 +174,10 @@ function actualizarUI(color) {
     if(bB) bB.disabled = (color === "azul" || color === "naranja");
     
     const c = color === "verde" ? "#4caf50" : color === "azul" ? "#2196f3" : color === "naranja" ? "#ff9800" : "#f44336";
-    
     if(card) card.style.borderColor = c;
     if(t) t.style.color = c;
 }
 
-// --- SIMULACIÓN DE CRON JOBS ---
-function generarID() { return Math.random().toString(36).substr(2, 6).toUpperCase(); }
-
-function guardarRutina() {
-    const horaInc = document.getElementById('hora-inicio').value;
-    const checks = Array.from(document.querySelectorAll('.dia-check:checked'));
-    const nombresDias = checks.map(c => c.parentElement.innerText.trim()).join(', ');
-
-    if(checks.length === 0 || !horaInc) return mostrarSnackbar("Rellena horas y días", "red");
-
-    mostrarSnackbar("Configurando rutina en servidor...", "#333");
-    
-    setTimeout(() => {
-        const idGrupo = generarID();
-        cronJobsSimulados.push({ id: idGrupo, titulo: `Rutina L-V (${horaInc})` });
-        mostrarSnackbar("✅ Rutina Guardada", "green");
-        listarCronJobs();
-    }, 1500);
-}
-
-function guardarEventoUnico() {
-    mostrarSnackbar("Programando fecha única...", "#9c27b0");
-    setTimeout(() => {
-        const idGrupo = generarID();
-        cronJobsSimulados.push({ id: idGrupo, titulo: `Cita Única` });
-        mostrarSnackbar("📅 Fecha Guardada", "green");
-        listarCronJobs();
-    }, 1500);
-}
-
-function guardarSeguridad() {
-    mostrarSnackbar("Configurando salvavidas...", "#333");
-    setTimeout(() => {
-        salvavidasActivo = true;
-        mostrarSnackbar("🔒 Salvavidas activado", "green");
-        listarCronJobs();
-    }, 1000);
-}
-
-function borrarSeguridad() {
-    mostrarSnackbar("Desactivando...", "#333");
-    setTimeout(() => {
-        salvavidasActivo = false;
-        mostrarSnackbar("Salvavidas Desactivado", "#f44336");
-        listarCronJobs();
-    }, 1000);
-}
-
-function borrarGrupo(id) {
-    if(!confirm("¿Borrar esta rutina completa?")) return;
-    mostrarSnackbar("Borrando rutina...", "#333");
-    setTimeout(() => {
-        cronJobsSimulados = cronJobsSimulados.filter(j => j.id !== id);
-        listarCronJobs();
-    }, 1000);
-}
-
-function listarCronJobs() {
-    const container = document.getElementById('cron-list-container');
-    const led = document.getElementById('led-seguridad');
-    if(!container) return;
-    
-    if(led) led.className = salvavidasActivo ? "led-verde" : "led-rojo";
-
-    const btnActivar = document.getElementById('btn-activar-seg');
-    const btnDesactivar = document.getElementById('btn-desactivar-seg');
-    if(btnActivar) btnActivar.disabled = salvavidasActivo;
-    if(btnDesactivar) btnDesactivar.disabled = !salvavidasActivo;
-
-    let htmlGrupos = cronJobsSimulados.map(grp => {
-        return `
-        <div style="background:#f8f9fa; border:1px solid #ddd; padding:12px; margin-bottom:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <strong style="color:#333;">📅 ${grp.titulo}</strong><br>
-                <span style="font-size:13px; color:#555;">Activa (Simulada)</span>
-            </div>
-            <button onclick="borrarGrupo('${grp.id}')" style="background:none; border:none; cursor:pointer; font-size:20px; color:#f44336;" title="Eliminar Rutina">🗑️</button>
-        </div>
-        `;
-    }).join('');
-
-    container.innerHTML = htmlGrupos || "<p style='color:#777; font-size:14px; text-align:center;'>No hay programaciones activas.</p>";
-}
-
-// --- UTILIDADES ---
 function mostrarSnackbar(msg, color) {
     const s = document.getElementById("snackbar");
     if(!s) return;
@@ -163,17 +187,19 @@ function mostrarSnackbar(msg, color) {
 
 function toggleDarkMode() {
     const body = document.documentElement;
-    const btn = document.getElementById('btn-dark-mode');
     if (body.getAttribute('data-theme') === 'light') {
         body.removeAttribute('data-theme');
-        btn.innerText = "☀️";
         localStorage.setItem('theme', 'dark');
     } else {
         body.setAttribute('data-theme', 'light');
-        btn.innerText = "🌙";
         localStorage.setItem('theme', 'light');
     }
 }
 
-// Iniciar estado por defecto
-comprobarEstado();
+// --- INICIO ---
+document.addEventListener('DOMContentLoaded', () => {
+    comprobarEstado();
+    listarCronJobs();
+    // Actualizar estado real cada 30 segundos
+    setInterval(listarCronJobs, 30000);
+});
